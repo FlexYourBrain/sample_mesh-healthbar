@@ -1,0 +1,5 @@
+material: "/assets/gfx/material/vertex_tint.material"
+vertices: "/assets/mesh/bar.buffer"
+textures: "/assets/gfx/textures/empty.png"
+position_stream: "position"
+normal_stream: "normal"

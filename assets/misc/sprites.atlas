@@ -1,0 +1,25 @@
+images {
+  image: "/assets/gfx/textures/bar_bg.png"
+}
+images {
+  image: "/assets/gfx/textures/bar_outline.png"
+}
+images {
+  image: "/assets/gfx/textures/heal_down.png"
+}
+images {
+  image: "/assets/gfx/textures/heal_up.png"
+}
+images {
+  image: "/assets/gfx/textures/smack_down.png"
+}
+images {
+  image: "/assets/gfx/textures/smack_up.png"
+}
+images {
+  image: "/assets/gfx/textures/plus.png"
+}
+images {
+  image: "/assets/gfx/textures/minus.png"
+}
+margin: 6

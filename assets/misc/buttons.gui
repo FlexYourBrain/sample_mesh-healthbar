@@ -1,0 +1,29 @@
+script: "/assets/misc/buttons.gui_script"
+textures {
+  name: "sprites"
+  texture: "/assets/misc/sprites.atlas"
+}
+nodes {
+  position {
+    x: 637.0
+    y: 102.0
+  }
+  type: TYPE_BOX
+  texture: "sprites/smack_up"
+  id: "smack"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+nodes {
+  position {
+    x: 323.0
+    y: 102.0
+  }
+  type: TYPE_BOX
+  texture: "sprites/heal_up"
+  id: "heal"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

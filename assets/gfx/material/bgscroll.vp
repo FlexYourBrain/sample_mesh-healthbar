@@ -1,0 +1,22 @@
+#version 140
+
+uniform vx_uniforms
+{
+    uniform mat4 mtx_worldview;
+    uniform mat4 mtx_proj;
+    uniform vec4 animation_time;
+};
+
+in vec4 position;
+in vec2 texcoord0;
+
+out vec2 var_texcoord1;
+out vec2 var_texcoord2;
+
+void main()
+{
+    vec4 p = mtx_worldview * vec4(position.xyz, 1.0);
+    var_texcoord1 = vec2(texcoord0.x + animation_time.x, texcoord0.y + animation_time.x);
+    var_texcoord2 = vec2(texcoord0.x - animation_time.x * 4.0, texcoord0.y + animation_time.x * 4.0);
+    gl_Position = mtx_proj * p;
+}

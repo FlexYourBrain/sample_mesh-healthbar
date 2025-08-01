@@ -1,0 +1,45 @@
+
+local smackdown = "smack_down" local smackup = "smack_up" -- buttons graphics
+local healdown = "heal_down" local healup = "heal_up" -- button graphics
+local mailbox = "/healthbar#mechanics" -- message url
+
+function init(self)
+
+
+	msg.post(".", "acquire_input_focus") -- get input
+	math.randomseed(socket.gettime()*10000) -- set random seed
+	self.heal = gui.get_node("heal") -- get heal button node
+	self.smack = gui.get_node("smack") -- get smack button node
+
+
+end
+
+local function randomvalue()
+
+
+	local value = math.random(75, 300)
+	return value
+
+
+end
+
+function on_input(self, action_id, action)
+
+
+	if action_id == hash("touch") then -- On click/touch change visual elements of buttons and send message
+		if action.pressed  then
+			if gui.pick_node(self.heal, action.x, action.y) then
+				gui.play_flipbook(self.heal, healdown)
+				msg.post(mailbox, "set_bar", { value = randomvalue()})
+			elseif gui.pick_node(self.smack, action.x, action.y) then
+				gui.play_flipbook(self.smack, smackdown)
+				msg.post(mailbox, "set_bar", { value = -randomvalue()})
+			end
+		elseif action.released then -- When released change visual elements of buttons to up
+			gui.play_flipbook(self.heal, healup)
+			gui.play_flipbook(self.smack, smackup)
+		end
+	end
+
+
+end

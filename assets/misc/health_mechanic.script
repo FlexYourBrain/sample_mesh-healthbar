@@ -1,0 +1,129 @@
+go.property("health", 300) -- the amount of health at anytime
+go.property("barcolor_start", vmath.vector3(0.0,0.6,0.671)) -- RGB color of the start of the bar, applied to vertex colors
+go.property("barcolor_end", vmath.vector3(0.071,0.827,0.0)) -- RGB color of the end of the bar, applied to vertex colors
+
+local fullcolor_start = vmath.vector3(0.0,0.6,0.671) -- full health color
+local fullcolor_end = vmath.vector3(0.071,0.827,0.0)
+local emptycolor = vmath.vector3(1, 0, 0) -- empty health color
+local max_health = 550
+local background = "/bg#background"
+local bar_mesh = "/mesh#bar"
+local healthbar = "/healthbar"
+local plus_particles = "/particles#plus"
+local minus_particles = "/particles#minus"
+
+------------------- helper functions --------------------------
+local function lerp(a, b, t)
+    return a + (b - a) * t
+end
+local function normalize(num, rmin, rmax, tmin, tmax)
+    return tmin + (num - rmin)/(rmax - rmin) * (tmax - tmin)
+end
+---------------------------------------------------------------
+
+local function start_scene()
+
+
+    go.set(background, "animation_time", vmath.vector4())
+    go.animate(background, "animation_time", go.PLAYBACK_LOOP_FORWARD, 1.0, go.EASING_INOUTSINE, 29.0,0.0)
+
+
+end
+
+function init(self)
+
+
+    math.randomseed(socket.gettime(os.clock())*1000)
+    start_scene()
+    self.updating_bar = false
+    self.can_press = true
+    ------------------- Buffer Control ------------------------
+    self.mesh = go.get(bar_mesh, "vertices")
+    self.buffer = resource.get_buffer(self.mesh)
+    self.positions = buffer.get_stream(self.buffer, "position")
+    self.colors = buffer.get_stream(self.buffer, "colors")
+    -----------------------------------------------------------
+
+
+end
+
+local function update_healthbar(self)
+
+    
+    ---------------------------   Populate vertice positions   ---------------------------------
+    self.new_position = self.health    -- Move vertice to new position equal to health value.
+    -- only need to move 3 verices along the horizontal X axis for our health bar: Layout guide image in docs
+    -- vertice 2                             -- vertice 3                             -- vertice 5
+    self.positions[4] = self.new_position    self.positions[7] = self.new_position    self.positions[13] = self.new_position
+    ---------------------------   Update vertex colors   ---------------------------------------
+    -- vertex 1                             -- vertex 2                           -- vertex 3
+    self.colors[1] = self.barcolor_start.x  self.colors[4] = self.barcolor_end.x  self.colors[7] = self.barcolor_end.x
+    self.colors[2] = self.barcolor_start.y  self.colors[5] = self.barcolor_end.y  self.colors[8] = self.barcolor_end.y
+    self.colors[3] = self.barcolor_start.z  self.colors[6] = self.barcolor_end.z  self.colors[9] = self.barcolor_end.z
+    -- vertex 4                              -- vertex 5                            -- vertex 6
+    self.colors[10] = self.barcolor_start.x  self.colors[13] = self.barcolor_end.x  self.colors[16] = self.barcolor_start.x
+    self.colors[11] = self.barcolor_start.y  self.colors[14] = self.barcolor_end.y  self.colors[17] = self.barcolor_start.y
+    self.colors[12] = self.barcolor_start.z  self.colors[15] = self.barcolor_end.z  self.colors[18] = self.barcolor_start.z
+    resource.set_buffer(self.mesh, self.buffer)
+
+
+end
+
+function update(self, dt)
+
+
+    if self.updating_bar then
+        update_healthbar(self)
+    end
+
+
+end
+
+local function bar_switch(self) -- bool flags for input and updating mesh buffer
+
+
+    self.updating_bar = not self.updating_bar
+    self.can_press = not self.can_press
+
+
+end
+
+local function animate_bar(to,value)
+
+
+    local tween = math.floor(normalize(to, 0, 550, 0, 1)*10000)/10000 --normalized amount to tween vector3 colors
+    local colorstart = lerp(emptycolor, fullcolor_start, tween) -- lerped vec3 colors for starting vertex colors
+    local colorend = lerp(emptycolor, fullcolor_end, tween) -- lerped vec3 colors for end vertex colors
+
+    if value <= 0 then -- Visual elements when new health value is negative "Smack"
+        go.animate("#", "health", go.PLAYBACK_ONCE_FORWARD, to, go.EASING_LINEAR, 1.25, 0, bar_switch)
+        go.animate(healthbar, "euler.z", go.PLAYBACK_ONCE_PINGPONG, 3.25, go.EASING_INELASTIC, 0.85,0,function()go.set(healthbar,"euler.z",0) end)
+        particlefx.play(minus_particles)
+    else -- Visual elements when new health value is positive "Heal"
+        go.animate("#", "health", go.PLAYBACK_ONCE_FORWARD, to, go.EASING_LINEAR, 1.25, 0, bar_switch)
+        particlefx.play(plus_particles)
+    end
+    -- animate new gradient colors for the healthbar
+    go.animate("#", "barcolor_start", go.PLAYBACK_ONCE_FORWARD, colorstart, go.EASING_LINEAR, 1.25, 0, bar_switch)
+    go.animate("#", "barcolor_end", go.PLAYBACK_ONCE_FORWARD, colorend, go.EASING_LINEAR, 1.25, 0, bar_switch)
+
+
+end
+
+function on_message(self, message_id, message)
+
+
+    if message_id == hash("set_bar") and self.can_press then
+        bar_switch(self)
+        local health = self.health + message.value -- added current health with new value
+        if health <= 0 then
+            animate_bar(0,message.value) -- when health is equal or below 0
+        elseif health >= max_health then
+            animate_bar(max_health,message.value) -- when health is equal or below max health
+        else
+            animate_bar(health,message.value) -- when health is in between min max health
+        end
+    end
+
+
+end
