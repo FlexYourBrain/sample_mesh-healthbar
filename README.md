@@ -18,7 +18,7 @@
 [∙ Play The DEMO ∙](https://flexyourbrain.itch.io/mesh-healthbar)
 
 
-<details><sub><summary>LEARN MORE ABOUT THE DEFOLD GAME ENGINE:</summary>
+<details><summary>LEARN MORE ABOUT THE DEFOLD GAME ENGINE:</summary>
 
 Check out [the documentation pages](https://defold.com/learn) for examples, tutorials, manuals and API docs.
 
@@ -26,7 +26,7 @@ If you run into trouble, help is available in [our forum](https://forum.defold.c
 
 Happy Defolding!
 
-</sub></details>
+</details>
 
 
 ---
